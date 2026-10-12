@@ -1,11 +1,11 @@
 /* STM32F103C8T6 bootloader: 16 KiB/ 64 KiB Flash, 20 KiB SRAM */
 
-ENTRY(Reset_Handler) // for debugger
+ENTRY(Reset_Handler)
 
 MEMORY
 {
-    FLASH (rx)  : ORIGIN = 0x08000000, LENGTH = 16K // 16 × 1024 bytes. 
-    RAM   (rwx) : ORIGIN = 0x20000000, LENGTH = 20K // 20 × 1024 bytes. 
+    FLASH (rx)  : ORIGIN = 0x08000000, LENGTH = 16K /* 16 × 1024 bytes. */ 
+    RAM   (rwx) : ORIGIN = 0x20000000, LENGTH = 20K /* 20 × 1024 bytes. */
 }
 
 _estack = ORIGIN(RAM) + LENGTH(RAM);
@@ -21,8 +21,8 @@ SECTIONS
     .text :
     {
         . = ALIGN(4);
-        *(.text*) // main code, variables
-        *(.rodata*) // constant variables
+        *(.text*) /* main code, variables */
+        *(.rodata*) /* constant variables */
         . = ALIGN(4);
     } > FLASH
 
