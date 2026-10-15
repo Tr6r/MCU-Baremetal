@@ -1,0 +1,2 @@
+OUTPUT_FORMAT=elf
+# OUTPUT_FORMAT=bin
