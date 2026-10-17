@@ -1,8 +1,25 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-application_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-elf="$application_dir/build/application.elf"
+repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+if [[ $# -ne 1 ]]; then
+    printf 'Usage: %s bootloader|application\n' "$0" >&2
+    exit 2
+fi
+
+target="$1"
+case "$target" in
+    bootloader) entry_function=main ;;
+    application) entry_function=main_app ;;
+    *)
+        printf 'Unknown target: %s\n' "$target" >&2
+        exit 2
+        ;;
+esac
+
+target_dir="$repo_dir/$target"
+elf="$repo_dir/build/$target/$target.elf"
 gdb="${GDB:-$HOME/Documents/workspace/tools/gcc-arm-none-eabi-10.3-2021.10/bin/arm-none-eabi-gdb}"
 openocd="${OPENOCD:-openocd}"
 
@@ -13,7 +30,7 @@ gdb_args=(
 
 add_breakpoints() {
     local functions=(
-        main_app
+        "$entry_function"
         Default_Handler
     )
     local function_name
@@ -26,7 +43,7 @@ add_breakpoints() {
 add_breakpoints
 gdb_args+=(-ex 'continue')
 
-make -C "$application_dir" OUTPUT_FORMAT=elf
+make -C "$target_dir"
 command -v "$gdb" >/dev/null
 command -v "$openocd" >/dev/null
 
