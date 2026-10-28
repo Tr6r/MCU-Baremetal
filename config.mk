@@ -1,6 +1,7 @@
 TOOLCHAIN_BIN ?= $(HOME)/Documents/workspace/tools/gcc-arm-none-eabi-10.3-2021.10/bin
 CC := $(TOOLCHAIN_BIN)/arm-none-eabi-gcc
 OBJCOPY := $(TOOLCHAIN_BIN)/arm-none-eabi-objcopy
+AR := $(TOOLCHAIN_BIN)/arm-none-eabi-ar
 OPENOCD ?= openocd
 OPENOCD_INTERFACE ?= interface/stlink.cfg
 OPENOCD_TARGET ?= target/stm32f1x.cfg
