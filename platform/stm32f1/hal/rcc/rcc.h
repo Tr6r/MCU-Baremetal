@@ -35,7 +35,7 @@
 
 #define FLASH_LATENCY_MASK 7U
 #define FLASH_PREFETCH	   (1U << 4)
-#define FLASH_ACR (*(volatile uint32_t *)0x40022000U)
+#define FLASH_ACR		   (*(volatile uint32_t *)0x40022000U)
 
 #define RCC_TIMEOUT 1000000U
 
@@ -54,6 +54,25 @@ typedef struct {
 
 #define RCC ((RCC_TypeDef_t *)RCC_BASE_ADDRESS)
 
+// GPIO_Conttrol_Clock
+#define AFIO_EN_CLOCK()	 (RCC->APB2ENR |= (1U << 0))	// Enable clock for AFIO
+#define GPIOA_EN_CLOCK() (RCC->APB2ENR |= (1 << 2))		// Enable clock for GPIOA
+#define GPIOB_EN_CLOCK() (RCC->APB2ENR |= (1 << 3))		// Enable clock for GPIOB
+#define GPIOC_EN_CLOCK() (RCC->APB2ENR |= (1 << 4))		// Enable clock for GPIOC
+#define GPIOD_EN_CLOCK() (RCC->APB2ENR |= (1 << 5))		// Enable clock for GPIOD
+#define GPIOE_EN_CLOCK() (RCC->APB2ENR |= (1 << 6))		// Enable clock for GPIOE
+#define GPIOF_EN_CLOCK() (RCC->APB2ENR |= (1 << 7))		// Enable clock for GPIOF
+#define GPIOG_EN_CLOCK() (RCC->APB2ENR |= (1 << 8))		// Enable clock for GPIOG
+
+#define AFIO_DIS_CLOCK()  (RCC->APB2ENR &= ~(1 << 0))	 // Disable clock for AFIO
+#define GPIOA_DIS_CLOCK() (RCC->APB2ENR &= ~(1 << 2))	 // Disable clock for GPIOA
+#define GPIOB_DIS_CLOCK() (RCC->APB2ENR &= ~(1 << 3))	 // Disable clock for GPIOB
+#define GPIOC_DIS_CLOCK() (RCC->APB2ENR &= ~(1 << 4))	 // Disable clock for GPIOC
+#define GPIOD_DIS_CLOCK() (RCC->APB2ENR &= ~(1 << 5))	 // Disable clock for GPIOD
+#define GPIOE_DIS_CLOCK() (RCC->APB2ENR &= ~(1 << 6))	 // Disable clock for GPIOE
+#define GPIOF_DIS_CLOCK() (RCC->APB2ENR &= ~(1 << 7))	 // Disable clock for GPIOF
+#define GPIOG_DIS_CLOCK() (RCC->APB2ENR &= ~(1 << 8))	 // Disable clock for GPIOG
+
 typedef enum {
 	RCC_CLOCK_LOW,		 // HSE: 8 MHz
 	RCC_CLOCK_MEDIUM,	 // HSE 8 MHz x 4: 32 MHz
@@ -61,5 +80,6 @@ typedef enum {
 } RCC_ClockLevel_t;
 
 bool RCC_Init(RCC_ClockLevel_t level);
+bool RCC_DeInit();
 
 #endif	  //__RCC__
