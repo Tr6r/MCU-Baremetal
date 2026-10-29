@@ -2,6 +2,11 @@ TARGET := application
 BUILD_DIR := ../build/$(TARGET)
 include ../config.mk
 
+HAL_ROOT := ../platform/stm32f1/hal
+HAL_LIB := hal/libstm32f1_hal.a
+HAL_INPUTS := $(wildcard $(HAL_ROOT)/Makefile $(HAL_ROOT)/*.h $(HAL_ROOT)/*/Makefile $(HAL_ROOT)/*/*.c $(HAL_ROOT)/*/*.h) ../config.mk
+CFLAGS += -Ihal/include
+
 ELF := $(BUILD_DIR)/$(TARGET).elf
 BIN := $(BUILD_DIR)/$(TARGET).bin
 
@@ -9,7 +14,10 @@ BIN := $(BUILD_DIR)/$(TARGET).bin
 all: firmware
 firmware: $(ELF) $(BIN)
 
-$(ELF): $(STARTUP) $(MAIN) $(LINKER_SCRIPT) Makefile ../config.mk
+$(HAL_LIB): $(HAL_INPUTS)
+	$(MAKE) -C $(HAL_ROOT) all
+
+$(ELF): $(STARTUP) $(MAIN) $(LINKER_SCRIPT) $(HAL_LIB) Makefile ../config.mk
 	@mkdir -p $(BUILD_DIR)
 	@set -eu; \
 	 cleanup() { \
@@ -21,7 +29,7 @@ $(ELF): $(STARTUP) $(MAIN) $(LINKER_SCRIPT) Makefile ../config.mk
 	 rm -f "$(ELF)"; \
 	 $(CC) $(ASFLAGS) -c $(STARTUP) -o "$(BUILD_DIR)/startup.o"; \
 	 $(CC) $(CFLAGS) -c $(MAIN) -o "$(BUILD_DIR)/main.o"; \
-	 $(CC) $(LDFLAGS) "$(BUILD_DIR)/startup.o" "$(BUILD_DIR)/main.o" -o "$(ELF)"; \
+	 $(CC) $(LDFLAGS) "$(BUILD_DIR)/startup.o" "$(BUILD_DIR)/main.o" "$(HAL_LIB)" -o "$(ELF)"; \
 	 bytes=$$(wc -c < "$(ELF)"); \
 	 printf "Output: %s (%s bytes)\n" "$(ELF)" "$$bytes"
 
