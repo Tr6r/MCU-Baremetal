@@ -17,8 +17,9 @@ static bool GPIO_EnableClock(GPIO_TypeDef *Instance) {
 }
 
 bool GPIO_Init(GPIO_TypeDef *Instance, GPIO_Pin_t Pin, GPIO_Mode_t Mode, GPIO_CNF_t CNF) {
-	if (!GPIO_EnableClock(Instance))
+	if (!GPIO_EnableClock(Instance)) {
 		return false;
+	}
 
 	if (Mode == GPIO_MODE_INPUT && CNF == GPIO_CNF_INPUT_PU_PD) {
 		Instance->ODR |= 1U << Pin;	   // Pull-up by default.
@@ -38,11 +39,11 @@ bool GPIO_Init(GPIO_TypeDef *Instance, GPIO_Pin_t Pin, GPIO_Mode_t Mode, GPIO_CN
 	*config_reg = (*config_reg & ~(0xFU << shift)) | (config << shift);
 }
 
-void GPIO_WritePin(GPIO_Handle_t *xGPIO, GPIO_State_t State) {
+void GPIO_WritePin(GPIO_TypeDef *Instance, GPIO_Pin_t Pin, GPIO_State_t State) {
 	if (State == GPIO_LOW) {
-		xGPIO->Instance->ODR &= ~(1 << xGPIO->GPIO_Config.Pin);
+		Instance->ODR &= ~(1 << Pin);
 	}
 	else {
-		xGPIO->Instance->ODR |= (1 << xGPIO->GPIO_Config.Pin);
+		Instance->ODR |= (1 << Pin);
 	}
 }
