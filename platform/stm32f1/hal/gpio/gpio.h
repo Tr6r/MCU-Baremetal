@@ -65,7 +65,6 @@ typedef enum {
 	GPIO_CNF_INPUT_FLOATING = 0x01,	   // Floating input
 	GPIO_CNF_INPUT_PU_PD	= 0x2,
 	GPIO_CNF_OUTPUT_PP		= 0x00,	   // Push-Pull output
-	GPIO_CNF_OUTPUT_OD		= 0x01,	   // Open-Drain output
 	GPIO_CNF_AF_PP			= 0x2,	   // Alternate function Push-Pull output
 	GPIO_CNF_AF_OD			= 0x3,
 } GPIO_CNF_t;
@@ -87,7 +86,7 @@ typedef struct {
 	GPIO_TypeDef *Instance;
 } GPIO_Handle_t;
 
-bool GPIO_Init(GPIO_TypeDef *Instance, GPIO_Pin_t Pin, GPIO_Mode_t Mode, GPIO_CNF_t CNF);
+int GPIO_Init(GPIO_TypeDef *Instance, GPIO_Pin_t Pin, GPIO_Mode_t Mode, GPIO_CNF_t CNF);
 void GPIO_WritePin(GPIO_TypeDef *Instance, GPIO_Pin_t Pin, GPIO_State_t State);
 
 #endif	  //__GPIO__

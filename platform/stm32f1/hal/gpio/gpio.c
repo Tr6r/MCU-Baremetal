@@ -1,49 +1,61 @@
 #include "gpio.h"
 #include "rcc.h"
 
-static bool GPIO_EnableClock(GPIO_TypeDef *Instance) {
+static int PR_GPIO_EnableClock(GPIO_TypeDef *Instance) {
 	uintptr_t address = (uintptr_t)Instance;
 	uintptr_t offset;
 
 	if (address < GPIOA_ADDRESS || address > GPIOG_ADDRESS)
-		return false;
+		return HAL_NG;
 
 	offset = address - GPIOA_ADDRESS;
 	if (offset % (GPIOB_ADDRESS - GPIOA_ADDRESS) != 0U)
-		return false;
+		return HAL_NG;
 
 	RCC->APB2ENR |= 1U << (2U + offset / (GPIOB_ADDRESS - GPIOA_ADDRESS));
-	return true;
+	return HAL_OK;
 }
 
-bool GPIO_Init(GPIO_TypeDef *Instance, GPIO_Pin_t Pin, GPIO_Mode_t Mode, GPIO_CNF_t CNF) {
-	if (!GPIO_EnableClock(Instance)) {
-		return false;
+int GPIO_Init(GPIO_TypeDef *instance, GPIO_Pin_t pin, GPIO_Mode_t mode, GPIO_CNF_t CNF) {
+	if (PR_GPIO_EnableClock(instance)) {
+		return HAL_NG;
 	}
 
-	if (Mode == GPIO_MODE_INPUT && CNF == GPIO_CNF_INPUT_PU_PD) {
-		Instance->ODR |= 1U << Pin;	   // Pull-up by default.
-	}
-	else if (Mode != GPIO_MODE_INPUT && CNF >= GPIO_CNF_AF_PP) {
-		AFIO_EN_CLOCK();
+	uint8_t pinPos				 = (pin % 8) * 4;
+	volatile uint32_t *configReg = (pin < GPIO_PIN_8) ? &instance->CRL : &instance->CRH;
+
+	switch (mode) {
+	case GPIO_MODE_INPUT: {
+		*configReg &= ~(0xF << pinPos);
+		*configReg |= (mode << pinPos);
+		*configReg |= (CNF << (pinPos + 2));
+		if (CNF == GPIO_CNF_INPUT_PU_PD) {
+			instance->ODR |= (1 << pin);
+		}
+		break;
 	}
 
-	volatile uint32_t *config_reg;
-	uint32_t shift;
-	uint32_t config;
+	case GPIO_MODE_OUTPUT_10MHz:
+	case GPIO_MODE_OUTPUT_2MHz:
+	case GPIO_MODE_OUTPUT_50MHz: {
+		*configReg &= ~(0xF << pinPos);
+		*configReg |= (mode << pinPos);
+		*configReg |= (CNF << (pinPos + 2));
+		break;
+	}
 
-	Instance->CRL |= (Mode << (Pin * 4));	 // Set mode (2 bit)
-	config_reg	= Pin < GPIO_PIN_8 ? &Instance->CRL : &Instance->CRH;
-	shift		= ((uint32_t)Pin & 7U) * 4U;
-	config		= ((uint32_t)CNF << 2) | (uint32_t)Mode;
-	*config_reg = (*config_reg & ~(0xFU << shift)) | (config << shift);
+	default:
+		return HAL_NG;
+	}
+
+	return HAL_OK;
 }
 
 void GPIO_WritePin(GPIO_TypeDef *Instance, GPIO_Pin_t Pin, GPIO_State_t State) {
 	if (State == GPIO_LOW) {
-		Instance->ODR &= ~(1 << Pin);
+		Instance->ODR |= (1 << Pin);
 	}
 	else {
-		Instance->ODR |= (1 << Pin);
+		Instance->ODR &= ~(1 << Pin);
 	}
 }
