@@ -79,7 +79,7 @@ typedef enum {
 	RCC_CLOCK_HIGH		 // HSE 8 MHz x 9: 72 MHz
 } RCC_ClockLevel_t;
 
-bool RCC_Init(RCC_ClockLevel_t level);
-bool RCC_DeInit();
+int RCC_Init(RCC_ClockLevel_t level);
+int RCC_DeInit();
 
 #endif	  //__RCC__

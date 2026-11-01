@@ -1,7 +1,7 @@
 #include "rcc.h"
 #include "common.h"
 
-bool RCC_Init(RCC_ClockLevel_t level) {
+int RCC_Init(RCC_ClockLevel_t level) {
 	uint32_t latency;
 	uint32_t pll_mul = 0;
 	uint32_t apb1	 = 0;
@@ -23,14 +23,15 @@ bool RCC_Init(RCC_ClockLevel_t level) {
 		adc		= CFGR_ADCPRE_DIV6;
 		break;
 	default:
-		return false;
+		return HAL_NG;
 	}
 
 	FLASH_ACR = (FLASH_ACR & ~FLASH_LATENCY_MASK) | latency | FLASH_PREFETCH;
 
 	RCC->CR |= CR_HSEON;
-	if (!HAL_WaitBits(&RCC->CR, CR_HSERDY, CR_HSERDY, RCC_TIMEOUT))
-		return false;
+	if (HAL_WaitBits(&RCC->CR, CR_HSERDY, CR_HSERDY, RCC_TIMEOUT) != HAL_OK) {
+		return HAL_NG;
+	}
 
 	uint32_t cfgr = RCC->CFGR;
 	cfgr &= ~(CFGR_HPRE_MASK | CFGR_PPRE1_MASK | CFGR_PPRE2_MASK | CFGR_ADCPRE_MASK | CFGR_PLLSRC_HSE | CFGR_PLLXTPRE | CFGR_PLLMUL_MASK | CFGR_USBPRE);
@@ -45,33 +46,38 @@ bool RCC_Init(RCC_ClockLevel_t level) {
 	RCC->CFGR = cfgr;
 
 	RCC->CR |= CR_PLLON;
-	if (!HAL_WaitBits(&RCC->CR, CR_PLLRDY, CR_PLLRDY, RCC_TIMEOUT))
-		return false;
+	if (HAL_WaitBits(&RCC->CR, CR_PLLRDY, CR_PLLRDY, RCC_TIMEOUT) != HAL_OK) {
+		return HAL_OK;
+	}
 
 	RCC->CFGR = (RCC->CFGR & ~CFGR_SW_MASK) | CFGR_SW_PLL;
 	return HAL_WaitBits(&RCC->CFGR, CFGR_SWS_MASK, CFGR_SWS_PLL, RCC_TIMEOUT);
 }
 
-bool RCC_DeInit(void) {
+int RCC_DeInit(void) {
 	RCC->CR |= CR_HSION;
-	if (!HAL_WaitBits(&RCC->CR, CR_HSIRDY, CR_HSIRDY, RCC_TIMEOUT))
-		return false;
+	if (HAL_WaitBits(&RCC->CR, CR_HSIRDY, CR_HSIRDY, RCC_TIMEOUT) != HAL_OK) {
+		return HAL_NG;
+	}
 
 	RCC->CFGR &= ~CFGR_SW_MASK;
-	if (!HAL_WaitBits(&RCC->CFGR, CFGR_SWS_MASK, 0, RCC_TIMEOUT))
-		return false;
+	if (HAL_WaitBits(&RCC->CFGR, CFGR_SWS_MASK, 0, RCC_TIMEOUT) != HAL_OK) {
+		return HAL_NG;
+	}
 
 	RCC->CR &= ~(CR_CSSON | CR_PLLON);
-	if (!HAL_WaitBits(&RCC->CR, CR_PLLRDY, 0, RCC_TIMEOUT))
-		return false;
+	if (HAL_WaitBits(&RCC->CR, CR_PLLRDY, 0, RCC_TIMEOUT) != HAL_OK) {
+		return HAL_NG;
+	}
 
 	RCC->CR &= ~CR_HSEON;
-	if (!HAL_WaitBits(&RCC->CR, CR_HSERDY, 0, RCC_TIMEOUT))
-		return false;
+	if (HAL_WaitBits(&RCC->CR, CR_HSERDY, 0, RCC_TIMEOUT) != HAL_OK) {
+		return HAL_NG;
+	}
+
 	RCC->CR &= ~CR_HSEBYP;
-
 	RCC->CFGR &= ~(CFGR_HPRE_MASK | CFGR_PPRE1_MASK | CFGR_PPRE2_MASK | CFGR_ADCPRE_MASK | CFGR_PLLSRC_HSE | CFGR_PLLXTPRE | CFGR_PLLMUL_MASK | CFGR_USBPRE);
-
 	FLASH_ACR &= ~FLASH_LATENCY_MASK;
-	return true;
+
+	return HAL_OK;
 }
