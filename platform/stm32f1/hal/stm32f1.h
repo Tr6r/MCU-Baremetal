@@ -8,6 +8,7 @@
 #define HAL_OK		0
 #define HAL_NG		-1
 #define HAL_TIMEOUT -2
+#define HAL_INVALID -3
 
 #define PERIPHERAL_ADDRESS 0x40000000U
 

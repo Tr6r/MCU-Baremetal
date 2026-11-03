@@ -8,22 +8,25 @@ int RCC_Init(RCC_ClockLevel_t level) {
 	uint32_t adc	 = 0;
 
 	switch (level) {
-	case RCC_CLOCK_LOW:	   // HSE 8 MHz
+	case RCC_CLOCK_LOW: {	 // HSE 8 MHz
 		latency = 0;
 		break;
-	case RCC_CLOCK_MEDIUM:	  // HSE × 4 = 32 MHz
+	}
+	case RCC_CLOCK_MEDIUM: {	// HSE × 4 = 32 MHz
 		latency = 1;
 		pll_mul = 4;
 		adc		= CFGR_ADCPRE_DIV4;
 		break;
-	case RCC_CLOCK_HIGH:	// HSE × 9 = 72 MHz
+	}
+	case RCC_CLOCK_HIGH: {	  // HSE × 9 = 72 MHz
 		latency = 2;
 		pll_mul = 9;
 		apb1	= CFGR_PPRE1_DIV2;
 		adc		= CFGR_ADCPRE_DIV6;
 		break;
+	}
 	default:
-		return HAL_NG;
+		return HAL_INVALID;
 	}
 
 	FLASH_ACR = (FLASH_ACR & ~FLASH_LATENCY_MASK) | latency | FLASH_PREFETCH;

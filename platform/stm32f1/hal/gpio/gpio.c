@@ -44,8 +44,9 @@ int GPIO_Init(GPIO_TypeDef *instance, GPIO_Pin_t pin, GPIO_Mode_t mode, GPIO_CNF
 		break;
 	}
 
-	default:
-		return HAL_NG;
+	default: {
+		return HAL_INVALID;
+	}
 	}
 
 	return HAL_OK;

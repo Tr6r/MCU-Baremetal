@@ -4,20 +4,24 @@ int SYSTICK_Init(RCC_ClockLevel_t clockLevel) {
 	uint32_t reload;
 
 	switch (clockLevel) {
-	case RCC_CLOCK_LOW:
+	case RCC_CLOCK_LOW: {
 		reload = 8000U - 1U;
 		break;
+	}
 
-	case RCC_CLOCK_MEDIUM:
+	case RCC_CLOCK_MEDIUM: {
 		reload = 32000U - 1U;
 		break;
+	}
 
-	case RCC_CLOCK_HIGH:
+	case RCC_CLOCK_HIGH: {
 		reload = 72000U - 1U;
 		break;
+	}
 
-	default:
-		return HAL_NG;
+	default: {
+		return HAL_INVALID;
+	}
 	}
 
 	SYSTICK->CTRL = 0U;		   // Reset CTRL register
