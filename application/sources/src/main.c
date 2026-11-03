@@ -2,15 +2,32 @@
 
 #include "rcc.h"
 #include "gpio.h"
+#include "systick.h"
+
+volatile uint32_t sys_tick = 0;
 
 int main_app(void) {
-	RCC_Init(RCC_CLOCK_LOW);
-	GPIO_Init(GPIOC, GPIO_PIN_13, GPIO_MODE_OUTPUT_2MHz, GPIO_CNF_OUTPUT_OD);
-	for (;;) {
-		GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_LOW);
-		for (volatile uint32_t i = 0; i < 1000000U; ++i) {}
-
-		GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_HIGH);
-		for (volatile uint32_t i = 0; i < 1000000U; ++i) {}
+	if (RCC_Init(RCC_CLOCK_LOW)) {
+		return -1;
 	}
+	if (SYSTICK_Init(RCC_CLOCK_LOW)) {
+		return -1;
+	}
+	if (GPIO_Init(GPIOC, GPIO_PIN_13, GPIO_MODE_OUTPUT_10MHz, GPIO_CNF_OUTPUT_PP)) {
+		return -1;
+	}
+	SYSTICK_Start();
+	uint32_t last_event_ms = 0;
+
+	for (;;) {
+		if (sys_tick - last_event_ms >= 2000)	 // 2s
+		{
+			GPIO_Write_Toggle(GPIOC, GPIO_PIN_13);
+			last_event_ms = sys_tick;
+		}
+	}
+}
+
+void SysTick_Handler(void) {
+	sys_tick++;
 }
