@@ -21,7 +21,7 @@ g_pfnVectors:
     .word Default_Handler  /* DebugMon */
     .word 0
     .word Default_Handler  /* PendSV */
-    .word Default_Handler  /* SysTick */
+    .word SysTick_Handler  /* SysTick */
 
 
 .section .text.Reset_Handler, "ax", %progbits
