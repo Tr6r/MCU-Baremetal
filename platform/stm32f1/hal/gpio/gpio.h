@@ -88,5 +88,6 @@ typedef struct {
 
 int GPIO_Init(GPIO_TypeDef *Instance, GPIO_Pin_t Pin, GPIO_Mode_t Mode, GPIO_CNF_t CNF);
 void GPIO_WritePin(GPIO_TypeDef *Instance, GPIO_Pin_t Pin, GPIO_State_t State);
+void GPIO_Write_Toggle(GPIO_TypeDef *Instance, GPIO_Pin_t Pin);
 
 #endif	  //__GPIO__

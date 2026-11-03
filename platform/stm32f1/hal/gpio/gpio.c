@@ -60,3 +60,7 @@ void GPIO_WritePin(GPIO_TypeDef *Instance, GPIO_Pin_t Pin, GPIO_State_t State) {
 		Instance->ODR &= ~(1 << Pin);
 	}
 }
+
+void GPIO_Write_Toggle(GPIO_TypeDef *Instance, GPIO_Pin_t Pin) {
+	Instance->ODR ^= (1U << Pin);
+}
