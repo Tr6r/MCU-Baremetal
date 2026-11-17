@@ -25,7 +25,15 @@ typedef struct {
 
 #define SCB ((SCB_TypeDef *)SCB_BASE)
 
+// ICSR bits
+#define SCB_ICSR_PENDSVSET (1U << 28)	 // Set a pending PendSV
+
+// SHPR3: the PendSV priority sits in byte [23:16]; Cortex-M3 implements only the top 4 bits
+#define SCB_SHPR3_PENDSV_Pos 16U
+#define SCB_SHPR3_PENDSV_Msk (0xFFU << SCB_SHPR3_PENDSV_Pos)
+#define SCB_PRIORITY_LOWEST	 0xF0U	 // Lowest priority (0xF in the implemented top nibble)
+
+void SCB_Init(void);
 void SCB_PendSV_Set(void);
-void SCB_SetPendSV_Priority_Lowest(void);
 
 #endif	  //__SCB__
