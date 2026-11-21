@@ -6,7 +6,11 @@
 #ifndef __TASK__
 #define __TASK__
 
+#include <stddef.h>
 #include <stdint.h>
+
+#define MAX_TASKS	8
+#define STACK_WORDS 128
 
 typedef void (*task_func_t)(void *argument);
 
@@ -33,12 +37,24 @@ typedef struct {
 } task_cfg_t;
 
 // Task control block
-typedef struct {
+typedef struct tcb_t tcb_t;
+
+struct tcb_t {
 	uint32_t *sp;
+	uint32_t wake_tick;
 	task_state_e state;
 	task_prio_e priority;
-} tcb_t;
+};
 
-void tcb_init(tcb_t *self, const task_cfg_t *cfg, uint32_t *stack_top);
+typedef struct {
+	tcb_t tasks[MAX_TASKS];
+	uint32_t stacks[MAX_TASKS][STACK_WORDS];	// 4 KB
+	uint32_t task_count;
+
+	void (*add_task)(tcb_t *self, const task_cfg_t *cfg, uint32_t *stack_top);
+
+} task_pool_t;
+
+void task_pool_init(task_pool_t *self);
 
 #endif	  //__TASK__

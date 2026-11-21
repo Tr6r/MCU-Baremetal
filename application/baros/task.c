@@ -3,13 +3,34 @@
  * Designed and written by Tr6r
  */
 
-#include "baros.h"
+#include "task.h"
+
+static void tcb_init(tcb_t *self);
+static void tcb_add_task(tcb_t *self, const task_cfg_t *cfg, uint32_t *stack_top);
+static void task_exit(void);
+
+void task_pool_init(task_pool_t *self) {
+	self->task_count = 0;
+	tcb_init(self->tasks);
+
+	// behaviors
+	self->add_task = tcb_add_task;
+}
+
+static void tcb_init(tcb_t *self) {
+	for (uint32_t i = 0; i < MAX_TASKS; i++) {
+		self[i].sp		  = NULL;
+		self[i].state	  = TASK_BLOCKED;
+		self[i].priority  = TASK_PRIO_0;
+		self[i].wake_tick = 0;
+	}
+}
 
 static void task_exit(void) {
 	while (1) {}
 }
 
-void tcb_init(tcb_t *self, const task_cfg_t *cfg, uint32_t *stack_top) {
+static void tcb_add_task(tcb_t *self, const task_cfg_t *cfg, uint32_t *stack_top) {
 	uint32_t *sp = (uint32_t *)((uint32_t)stack_top & ~0x7u);
 
 	*(--sp) = 0x01000000u;				  // xPSR
@@ -34,39 +55,3 @@ void tcb_init(tcb_t *self, const task_cfg_t *cfg, uint32_t *stack_top) {
 	self->state	   = TASK_READY;
 	self->priority = cfg->priority;
 }
-
-static void baros_init(baros_t *self, const task_cfg_t *cfg, uint32_t n) {
-	if (n > MAX_TASKS) {
-		n = MAX_TASKS;
-	}
-
-	for (uint32_t i = 0; i < n; i++) {
-		tcb_init(&self->tasks[i], &cfg[i], &self->stacks[i][STACK_WORDS]);
-	}
-
-	self->task_count   = n;
-	self->current_task = &self->tasks[0];
-}
-
-__attribute__((naked)) static void baros_start_first(uint32_t *sp __attribute__((unused))) {
-	__asm volatile("ldmia r0!, {r4-r11}  \n"
-				   "msr   psp, r0        \n"
-				   "movs  r0, #2         \n"
-				   "msr   control, r0    \n"
-				   "isb                  \n"
-				   "pop   {r0-r3, r12}   \n"
-				   "pop   {lr}           \n"
-				   "pop   {r1}           \n"
-				   "pop   {r2}           \n"
-				   "cpsie i              \n"
-				   "bx    r1             \n");
-}
-
-static void baros_start(baros_t *self) {
-	baros_start_first(self->current_task->sp);
-}
-
-baros_t g_baros = {
-	.init  = baros_init,
-	.start = baros_start,
-};
