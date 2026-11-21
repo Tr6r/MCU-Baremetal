@@ -33,6 +33,9 @@ typedef struct {
 #define SCB_SHPR3_PENDSV_Msk (0xFFU << SCB_SHPR3_PENDSV_Pos)
 #define SCB_PRIORITY_LOWEST	 0xF0U	 // Lowest priority (0xF in the implemented top nibble)
 
+#define SCB_SHPR3_SYSTICK_Pos 24U
+#define SCB_SHPR3_SYSTICK_Msk (0xFFU << SCB_SHPR3_SYSTICK_Pos)
+
 void SCB_Init(void);
 void SCB_PendSV_Set(void);
 
