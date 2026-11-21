@@ -20,7 +20,7 @@ g_pfnVectors:
     .word Default_Handler  /* SVCall */
     .word Default_Handler  /* DebugMon */
     .word 0
-    .word Default_Handler  /* PendSV */
+    .word PendSV_Handler   /* PendSV */
     .word SysTick_Handler  /* SysTick */
 
 
