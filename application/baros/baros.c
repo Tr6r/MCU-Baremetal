@@ -6,23 +6,21 @@
 #include <stddef.h>
 
 #include "baros.h"
+#include "scb.h"
 
 static void baros_load_task(baros_t *self, const task_cfg_t *cfg, uint32_t n);
+static void baros_load_idle_task(baros_t *self);
 
-static void baros_idle_task(void *argument) {
-	(void)argument;
-	for (;;) {
-		__asm volatile("wfi");	  // CPU ngủ tới ngắt kế -> tiết kiệm điện
-	}
+static void baros_load_idle_task(baros_t *self) {
+	task_cfg_t idle = {.func = task_idle_handler, .argument = NULL, .priority = TASK_PRIO_0};
+	baros_load_task(self, &idle, 1);
 }
 
 static void baros_init(baros_t *self) {
 	task_pool_init(&self->pool);
 	scheduler_init(&self->scheduler);
 
-	// idle task: priority thấp nhất, luôn READY (CPU luôn có chỗ chạy)
-	task_cfg_t idle = {.func = baros_idle_task, .argument = NULL, .priority = TASK_PRIO_0};
-	baros_load_task(self, &idle, 1);
+	baros_load_idle_task(self);
 }
 
 __attribute__((naked)) static void baros_start_first(uint32_t *sp __attribute__((unused))) {
@@ -63,6 +61,27 @@ static void baros_start(baros_t *self) {
 	scheduler_pick_first(&self->scheduler);
 	self->scheduler.started = 1;
 	baros_start_first(self->scheduler.current->task->sp);
+}
+
+void baros_delay(uint32_t ms) {
+	scheduler_t *s = &g_baros.scheduler;
+	tcb_t *t	   = scheduler_current(s);
+
+	baros_enter_critical();
+	tcb_set_wake(t, scheduler_tick(s) + ms);
+	tcb_set_state(t, TASK_BLOCKED);
+	SCB_PendSV_Set();
+	baros_exit_critical();
+}
+
+void baros_delay_until(uint32_t target) {
+	tcb_t *t = scheduler_current(&g_baros.scheduler);
+
+	baros_enter_critical();
+	tcb_set_wake(t, target);
+	tcb_set_state(t, TASK_BLOCKED);
+	SCB_PendSV_Set();
+	baros_exit_critical();
 }
 
 baros_t g_baros = {

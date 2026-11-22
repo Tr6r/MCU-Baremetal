@@ -23,4 +23,16 @@ struct baros_t {
 
 extern baros_t g_baros;
 
+// critical section
+static inline void baros_enter_critical(void) {
+	__asm volatile("cpsid i" ::: "memory");
+}
+
+static inline void baros_exit_critical(void) {
+	__asm volatile("cpsie i" ::: "memory");
+}
+
+void baros_delay(uint32_t ms);
+void baros_delay_until(uint32_t target);
+
 #endif	  //__BAROS__

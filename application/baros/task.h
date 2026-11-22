@@ -46,6 +46,27 @@ struct tcb_t {
 	task_prio_e priority;
 };
 
+// tcb accessors
+static inline void tcb_set_wake(tcb_t *self, uint32_t tick) {
+	self->wake_tick = tick;
+}
+
+static inline void tcb_set_state(tcb_t *self, task_state_e state) {
+	self->state = state;
+}
+
+static inline uint32_t tcb_wake(const tcb_t *self) {
+	return self->wake_tick;
+}
+
+static inline task_state_e tcb_state(const tcb_t *self) {
+	return self->state;
+}
+
+static inline task_prio_e tcb_priority(const tcb_t *self) {
+	return self->priority;
+}
+
 typedef struct {
 	tcb_t tasks[MAX_TASKS];
 	uint32_t stacks[MAX_TASKS][STACK_WORDS];	// 4 KB
@@ -56,5 +77,6 @@ typedef struct {
 } task_pool_t;
 
 void task_pool_init(task_pool_t *self);
+void task_idle_handler(void *argument);
 
 #endif	  //__TASK__

@@ -55,3 +55,10 @@ static void tcb_add_task(tcb_t *self, const task_cfg_t *cfg, uint32_t *stack_top
 	self->state	   = TASK_READY;
 	self->priority = cfg->priority;
 }
+
+void task_idle_handler(void *argument) {
+	(void)argument;
+	for (;;) {
+		__asm volatile("wfi");
+	}
+}

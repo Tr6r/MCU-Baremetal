@@ -34,6 +34,15 @@ struct scheduler_t {
 	ready_node_t *(*get_next_node)(scheduler_t *self);
 };
 
+// scheduler accessors
+static inline tcb_t *scheduler_current(scheduler_t *self) {
+	return self->current->task;
+}
+
+static inline uint32_t scheduler_tick(const scheduler_t *self) {
+	return self->tick;
+}
+
 void scheduler_init(scheduler_t *self);
 void scheduler_add_ready_task(scheduler_t *self, tcb_t *t);
 void scheduler_pick_first(scheduler_t *self);
