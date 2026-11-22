@@ -3,39 +3,39 @@
  * Designed and written by Tr6r
  */
 
-#include "task.h"
+#include "thread.h"
 
 static void tcb_init(tcb_t *self);
-static void tcb_add_task(tcb_t *self, const task_cfg_t *cfg, uint32_t *stack_top);
-static void task_exit(void);
+static void tcb_add_thread(tcb_t *self, const thread_cfg_t *cfg, uint32_t *stack_top);
+static void thread_exit(void);
 
-void task_pool_init(task_pool_t *self) {
-	self->task_count = 0;
-	tcb_init(self->tasks);
+void thread_pool_init(thread_pool_t *self) {
+	self->thread_count = 0;
+	tcb_init(self->threads);
 
 	// behaviors
-	self->add_task = tcb_add_task;
+	self->add_thread = tcb_add_thread;
 }
 
 static void tcb_init(tcb_t *self) {
-	for (uint32_t i = 0; i < MAX_TASKS; i++) {
+	for (uint32_t i = 0; i < MAX_THREADS; i++) {
 		self[i].sp		  = NULL;
-		self[i].state	  = TASK_BLOCKED;
-		self[i].priority  = TASK_PRIO_0;
+		self[i].state	  = THREAD_BLOCKED;
+		self[i].priority  = THREAD_PRIO_0;
 		self[i].wake_tick = 0;
 	}
 }
 
-static void task_exit(void) {
+static void thread_exit(void) {
 	while (1) {}
 }
 
-static void tcb_add_task(tcb_t *self, const task_cfg_t *cfg, uint32_t *stack_top) {
+static void tcb_add_thread(tcb_t *self, const thread_cfg_t *cfg, uint32_t *stack_top) {
 	uint32_t *sp = (uint32_t *)((uint32_t)stack_top & ~0x7u);
 
 	*(--sp) = 0x01000000u;				  // xPSR
 	*(--sp) = (uint32_t)cfg->func;		  // PC
-	*(--sp) = (uint32_t)task_exit;		  // LR
+	*(--sp) = (uint32_t)thread_exit;		  // LR
 	*(--sp) = 0u;						  // R12
 	*(--sp) = 0u;						  // R3
 	*(--sp) = 0u;						  // R2
@@ -52,11 +52,11 @@ static void tcb_add_task(tcb_t *self, const task_cfg_t *cfg, uint32_t *stack_top
 	*(--sp) = 0u;	 // R4
 
 	self->sp	   = sp;
-	self->state	   = TASK_READY;
+	self->state	   = THREAD_READY;
 	self->priority = cfg->priority;
 }
 
-void task_idle_handler(void *argument) {
+void thread_idle_handler(void *argument) {
 	(void)argument;
 	for (;;) {
 		__asm volatile("wfi");
