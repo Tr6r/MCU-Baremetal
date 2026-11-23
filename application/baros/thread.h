@@ -9,8 +9,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define MAX_THREADS	8
-#define STACK_WORDS 128
+#define MAX_THREADS	4
+#define STACK_WORDS 256
 
 typedef void (*thread_func_t)(void *argument);
 
