@@ -1,5 +1,6 @@
 TOOLCHAIN_BIN ?= $(HOME)/Documents/workspace/tools/gcc-arm-none-eabi-10.3-2021.10/bin
 CC := $(TOOLCHAIN_BIN)/arm-none-eabi-gcc
+CXX := $(TOOLCHAIN_BIN)/arm-none-eabi-g++
 OBJCOPY := $(TOOLCHAIN_BIN)/arm-none-eabi-objcopy
 AR := $(TOOLCHAIN_BIN)/arm-none-eabi-ar
 OPENOCD ?= openocd
@@ -21,5 +22,6 @@ endif
 MODE_FLAGS := -Os -g3
 CPU_FLAGS := -mcpu=cortex-m3 -mthumb
 CFLAGS := $(CPU_FLAGS) -std=c11 $(MODE_FLAGS) -ffreestanding -Wall -Wextra
+CXXFLAGS := $(CPU_FLAGS) -std=c++17 $(MODE_FLAGS) -ffreestanding -fno-exceptions -fno-rtti -fno-threadsafe-statics -fno-use-cxa-atexit -Wall -Wextra
 ASFLAGS := $(CPU_FLAGS) $(MODE_FLAGS)
 LDFLAGS := $(CPU_FLAGS) -nostdlib -T $(LINKER_SCRIPT) -Wl,--build-id=none -Wl,-n
