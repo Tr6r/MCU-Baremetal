@@ -39,7 +39,7 @@ __attribute__((naked)) static void baros_start_first(uint32_t *sp __attribute__(
 
 static void baros_load_thread(baros_t *self, const thread_cfg_t *cfg, uint32_t n) {
 	thread_pool_t *pool = &self->pool;
-	scheduler_t *s	  = &self->scheduler;
+	scheduler_t *s		= &self->scheduler;
 
 	for (uint32_t i = 0; i < n; i++) {
 		if (pool->thread_count >= MAX_THREADS) {
@@ -84,8 +84,12 @@ void baros_delay_until(uint32_t target) {
 	baros_exit_critical();
 }
 
+uint32_t baros_millis() {
+	return g_baros.scheduler.tick;
+}
+
 baros_t g_baros = {
-	.init	   = baros_init,
+	.init		 = baros_init,
 	.load_thread = baros_load_thread,
-	.start	   = baros_start,
+	.start		 = baros_start,
 };

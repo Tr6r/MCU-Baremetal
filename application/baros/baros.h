@@ -32,6 +32,7 @@ static inline void baros_exit_critical(void) {
 	__asm volatile("cpsie i" ::: "memory");
 }
 
+uint32_t baros_millis();
 void baros_delay(uint32_t ms);
 void baros_delay_until(uint32_t target);
 
