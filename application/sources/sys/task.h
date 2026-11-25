@@ -7,6 +7,7 @@ extern "C" {
 #include "timer.h"
 
 #define MAX_EVENTS 8
+#define MAX_MSG	   8
 
 typedef enum {
 	EVENT_MODE_ONCE_TIME,
@@ -14,9 +15,13 @@ typedef enum {
 } event_mode_e;
 
 typedef struct {
-	Timer timer;
-	void (*callback)(void *argument);
+	uint32_t id;
 	void *argument;
+} event_msg_t;
+
+typedef struct {
+	Timer timer;
+	event_msg_t msg;
 	event_mode_e mode;
 } task_event_t;
 
@@ -25,13 +30,20 @@ public:
 	Task();
 	~Task();
 	virtual void main_handler() = 0;
-	void add_task_event(uint32_t ms, void (*callback)(void *argument), event_mode_e mode, void *argument = nullptr);
+	virtual void on_event(uint32_t id, void *argument) = 0;
+	void add_task_event(uint32_t ms, event_msg_t msg, event_mode_e mode);
+	void post(uint32_t id, void *argument = nullptr);
 	void loop();
 
 protected:
 	void run_events();
+	void drain_inbox();
 	task_event_t events[MAX_EVENTS];
 	uint32_t event_count_ = 0;
+
+	event_msg_t inbox_[MAX_MSG];
+	volatile uint8_t head_ = 0;
+	volatile uint8_t tail_ = 0;
 };
 
 #endif	  //__TASK__
