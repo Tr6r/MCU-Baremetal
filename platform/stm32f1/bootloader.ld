@@ -4,7 +4,7 @@ ENTRY(Reset_Handler)
 
 MEMORY
 {
-    FLASH (rx)  : ORIGIN = 0x08000000, LENGTH = 16K /* 16 × 1024 bytes. */ 
+    FLASH (rx)  : ORIGIN = 0x08000000, LENGTH = 12K /* 12 × 1024 bytes. */ 
     RAM   (rwx) : ORIGIN = 0x20000000, LENGTH = 20K /* 20 × 1024 bytes. */
 }
 
