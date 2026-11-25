@@ -24,3 +24,11 @@ static void SCB_SetPendSV_Priority_Lowest(void) {
 static void SCB_SetSysTick_Priority_Lowest(void) {
 	SCB->SHPR3 = (SCB->SHPR3 & ~SCB_SHPR3_SYSTICK_Msk) | (SCB_PRIORITY_LOWEST << SCB_SHPR3_SYSTICK_Pos);
 }
+
+void SCB_SystemReset(void) {
+	__asm volatile("dsb" ::: "memory");
+	SCB->AIRCR = SCB_AIRCR_VECTKEY | (SCB->AIRCR & SCB_AIRCR_PRIGROUP_Msk) | SCB_AIRCR_SYSRESETREQ;
+	__asm volatile("dsb" ::: "memory");
+	for (;;) {}
+}
+

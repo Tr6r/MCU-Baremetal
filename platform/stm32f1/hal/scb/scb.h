@@ -31,12 +31,19 @@ typedef struct {
 // SHPR3: the PendSV priority sits in byte [23:16]; Cortex-M3 implements only the top 4 bits
 #define SCB_SHPR3_PENDSV_Pos 16U
 #define SCB_SHPR3_PENDSV_Msk (0xFFU << SCB_SHPR3_PENDSV_Pos)
-#define SCB_PRIORITY_LOWEST	 0xF0U	 // Lowest priority (0xF in the implemented top nibble)
+#define SCB_PRIORITY_LOWEST	 0xF0U	  // Lowest priority (0xF in the implemented top nibble)
 
 #define SCB_SHPR3_SYSTICK_Pos 24U
 #define SCB_SHPR3_SYSTICK_Msk (0xFFU << SCB_SHPR3_SYSTICK_Pos)
 
+// AIRCR bits
+#define SCB_AIRCR_VECTKEY_Pos  16U
+#define SCB_AIRCR_VECTKEY	   (0x5FAU << SCB_AIRCR_VECTKEY_Pos)
+#define SCB_AIRCR_PRIGROUP_Msk (0x7U << 8U)
+#define SCB_AIRCR_SYSRESETREQ  (1U << 2)
+
 void SCB_Init(void);
 void SCB_PendSV_Set(void);
+void SCB_SystemReset(void);
 
 #endif	  //__SCB__
