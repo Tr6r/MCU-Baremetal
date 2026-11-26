@@ -1,10 +1,12 @@
+
 #include "task_led.h"
 
-static void blink_led_gpioc_13(	Led &led);
+static void blink_led_gpioc_13(Led &led);
 
 void TaskLed::init() {
 	led_.init(GPIOC, GPIO_PIN_13);
-	add_task_event(LED_BLINK_TIME, {LED_BLINK, nullptr}, EVENT_MODE_PERIOD);
+	g_baros.bind_self(&g_baros, this);
+	add_task_event(LED_BLINK, LED_BLINK_TIME, EVENT_MODE_PERIOD);
 }
 
 void TaskLed::on_event(uint32_t id, void *argument) {
@@ -20,7 +22,7 @@ void TaskLed::on_event(uint32_t id, void *argument) {
 
 void TaskLed::main_handler() {}
 
-static void blink_led_gpioc_13(	Led &led) {
+static void blink_led_gpioc_13(Led &led) {
 	led.toggle();
 }
 
