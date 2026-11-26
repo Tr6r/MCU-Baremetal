@@ -9,7 +9,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define MAX_THREADS	4
+#define MAX_THREADS 4
 #define STACK_WORDS 256
 
 typedef void (*thread_func_t)(void *argument);
@@ -31,20 +31,21 @@ typedef enum {
 } thread_prio_e;
 
 typedef struct {
+	uint32_t thread_id;
 	thread_func_t func;
 	void *argument;
 	thread_prio_e priority;
 } thread_cfg_t;
 
 // Task control block
-typedef struct tcb_t tcb_t;
-
-struct tcb_t {
+typedef struct {
 	uint32_t *sp;
 	uint32_t wake_tick;
 	thread_state_e state;
 	thread_prio_e priority;
-};
+	uint32_t thread_id;
+	void *owner;
+} tcb_t;
 
 // tcb accessors
 static inline void tcb_set_wake(tcb_t *self, uint32_t tick) {
@@ -69,7 +70,7 @@ static inline thread_prio_e tcb_priority(const tcb_t *self) {
 
 typedef struct {
 	tcb_t threads[MAX_THREADS];
-	uint32_t stacks[MAX_THREADS][STACK_WORDS];	// 4 KB
+	uint32_t stacks[MAX_THREADS][STACK_WORDS];	  // 4 KB
 	uint32_t thread_count;
 
 	void (*add_thread)(tcb_t *self, const thread_cfg_t *cfg, uint32_t *stack_top);

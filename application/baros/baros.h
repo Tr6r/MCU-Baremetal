@@ -16,9 +16,10 @@ struct baros_t {
 
 	// Constructor
 	void (*init)(baros_t *self);
-
 	void (*load_thread)(baros_t *self, const thread_cfg_t *cfg, uint32_t n);
 	void (*start)(baros_t *self);
+	void (*bind_self)(baros_t *self, void *obj);
+	void *(*obj_of)(baros_t *self, uint32_t thread_id);
 };
 
 extern baros_t g_baros;

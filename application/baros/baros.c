@@ -10,9 +10,15 @@
 
 static void baros_load_thread(baros_t *self, const thread_cfg_t *cfg, uint32_t n);
 static void baros_load_idle_thread(baros_t *self);
+static tcb_t *baros_find_thread(baros_t *self, uint32_t thread_id);
+static void baros_bind_self(baros_t *self, void *obj);
+static void *baros_obj_of(baros_t *self, uint32_t thread_id);
 
 static void baros_load_idle_thread(baros_t *self) {
-	thread_cfg_t idle = {.func = thread_idle_handler, .argument = NULL, .priority = THREAD_PRIO_0};
+	thread_cfg_t idle = {.thread_id = 0,
+						 .func	   = thread_idle_handler,
+						 .argument = NULL,
+						 .priority = THREAD_PRIO_0};
 	baros_load_thread(self, &idle, 1);
 }
 
@@ -84,6 +90,25 @@ void baros_delay_until(uint32_t target) {
 	baros_exit_critical();
 }
 
+static tcb_t *baros_find_thread(baros_t *self, uint32_t thread_id) {
+	thread_pool_t *pool = &self->pool;
+	for (uint32_t i = 0; i < pool->thread_count; i++) {
+		if (pool->threads[i].thread_id == thread_id) {
+			return &pool->threads[i];
+		}
+	}
+	return NULL;
+}
+
+static void baros_bind_self(baros_t *self, void *obj) {
+	scheduler_current(&self->scheduler)->owner = obj;
+}
+
+static void *baros_obj_of(baros_t *self, uint32_t thread_id) {
+	tcb_t *t = baros_find_thread(self, thread_id);
+	return (t == NULL) ? NULL : t->owner;
+}
+
 uint32_t baros_millis() {
 	return g_baros.scheduler.tick;
 }
@@ -92,4 +117,6 @@ baros_t g_baros = {
 	.init		 = baros_init,
 	.load_thread = baros_load_thread,
 	.start		 = baros_start,
+	.bind_self	 = baros_bind_self,
+	.obj_of		 = baros_obj_of,
 };
