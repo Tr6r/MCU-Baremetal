@@ -6,8 +6,8 @@ extern "C" {
 }
 
 typedef enum {
-	TASK_ID_SYS = 0,
-	TASK_ID_LED = 1
+	TASK_ID_LED = 1,
+	TASK_ID_SYS = 2
 } task_id_e;
 
 extern const thread_cfg_t g_task_list[];
